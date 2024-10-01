@@ -101,7 +101,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: customer_postgres_db
+      POSTGRES_DB: customer_db
     ports:
       - "5432:5432"
     extra_hosts:
@@ -111,12 +111,12 @@ services:
     image: dbeaver/cloudbeaver:latest
     restart: always
     ports:
-      - "8090:8080"
+      - "8084:8082"
     environment:
       CB_DB_DRIVER: postgresql
       CB_DB_HOST: postgresdb
       CB_DB_PORT: 5432
-      CB_DB_NAME: customer_postgres_db
+      CB_DB_NAME: customer_db
       CB_DB_USER: postgres
       CB_DB_PASS: postgres
     depends_on:
@@ -132,7 +132,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
-      - MONGO_INITDB_DATABASE=customer_mongo_db
+      - MONGO_INITDB_DATABASE=customer_db
     extra_hosts:
       - "host.docker.internal:172.17.0.1"
 
