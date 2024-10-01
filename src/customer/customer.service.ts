@@ -8,15 +8,15 @@ import { Customer } from './entity/customer.entity'
 export class CustomerService {
     constructor(
         @InjectRepository(Customer)
-        private customerRepository: Repository<Customer>,
+        private readonly customerRepository: Repository<Customer>,
     ) {}
 
     async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
         const customer = this.customerRepository.create(createCustomerDto)
-        return this.customerRepository.save(customer)
+        return await this.customerRepository.save(customer)
     }
 
     async findAll(): Promise<Customer[]> {
-        return this.customerRepository.find({ relations: ['addresses'] })
+        return await this.customerRepository.find({ relations: ['addresses'] })
     }
 }
