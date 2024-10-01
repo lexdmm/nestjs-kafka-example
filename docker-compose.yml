@@ -2,11 +2,13 @@ version: "3.9"
 
 services:
 
+  # Zookeeper
   zookeeper:
     image: confluentinc/cp-zookeeper:latest
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
 
+  # Kafka
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
@@ -26,7 +28,7 @@ services:
       - "host.docker.internal:172.17.0.1"
 
   control-center:
-    image: confluentinc/cp-enterprise-control-center:6.0.1
+    image: confluentinc/cp-enterprise-control-center:latest
     hostname: control-center
     depends_on:
       - kafka
@@ -41,7 +43,7 @@ services:
       - "host.docker.internal:172.17.0.1"
 
   kafka-connect:
-    image: confluentinc/cp-kafka-connect-base:6.0.0
+    image: confluentinc/cp-kafka-connect-base:latest
     container_name: kafka-connect
     depends_on:
       - zookeeper
@@ -81,9 +83,9 @@ services:
       - bash
       - -c
       - |
-        echo "Installing Connector"
-        confluent-hub install --no-prompt debezium/debezium-connector-mysql:1.2.2
-        confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:1.5.0
+        echo "Installing Connectors"
+        confluent-hub install --no-prompt debezium/debezium-connector-postgresql:latest
+        confluent-hub install --no-prompt mongodb/kafka-connect-mongodb:latest
         #
         echo "Launching Kafka Connect worker"
         /etc/confluent/docker/run &
@@ -92,18 +94,37 @@ services:
     extra_hosts:
       - "host.docker.internal:172.17.0.1"
 
+  # PostgreSQL
   postgresdb:
-    image: postgres
+    image: postgres:latest
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: customer_db
+      POSTGRES_DB: customer_postgres_db
     ports:
       - "5432:5432"
+    extra_hosts:
+      - "host.docker.internal:172.17.0.1"
 
+  dbeaver:
+    image: dbeaver/cloudbeaver:latest
+    restart: always
+    ports:
+      - "8090:8080"
+    environment:
+      CB_DB_DRIVER: postgresql
+      CB_DB_HOST: postgresdb
+      CB_DB_PORT: 5432
+      CB_DB_NAME: customer_postgres_db
+      CB_DB_USER: postgres
+      CB_DB_PASS: postgres
+    depends_on:
+      - postgresdb
+
+  # MongoDB
   mongodb:
-    image: mongo:4.4.4
+    image: mongo:latest
     restart: always
     volumes:
       - ./.docker/dbdata:/data/db
@@ -111,7 +132,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=root
       - MONGO_INITDB_ROOT_PASSWORD=root
-      - MONGO_INITDB_DATABASE=fullcycle
+      - MONGO_INITDB_DATABASE=customer_mongo_db
     extra_hosts:
       - "host.docker.internal:172.17.0.1"
 
