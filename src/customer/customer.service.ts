@@ -13,7 +13,9 @@ export class CustomerService {
 
     async create(createCustomerDto: CreateCustomerDto): Promise<Customer> {
         const customer = this.customerRepository.create(createCustomerDto)
-        return await this.customerRepository.save(customer)
+        const savedCustomer = await this.customerRepository.save(customer)
+
+        return savedCustomer
     }
 
     async findAll(): Promise<Customer[]> {
