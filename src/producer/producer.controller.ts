@@ -8,6 +8,6 @@ export class ProducerController {
     @Get('send-customers')
     async sendCustomerData() {
         await this.producerService.sendCustomerDataToKafka()
-        return 'Customer data sent to Kafka!'
+        return 'Customers data sent to Kafka!'
     }
 }

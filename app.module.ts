@@ -1,10 +1,25 @@
 import { Module } from '@nestjs/common'
+import { ClientsModule, Transport } from '@nestjs/microservices'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { CustomerModule } from 'src/customer/customer.module'
 import { ProducerModule } from 'src/producer/producer.module'
 
 @Module({
     imports: [
+        ClientsModule.register([
+            {
+                name: 'CUSTOMER_SERVICE',
+                transport: Transport.KAFKA,
+                options: {
+                    client: {
+                        brokers: ['localhost:9094'],
+                    },
+                    consumer: {
+                        groupId: 'customer-group',
+                    },
+                },
+            },
+        ]),
         TypeOrmModule.forRoot({
             type: 'postgres',
             host: 'localhost',
@@ -15,8 +30,8 @@ import { ProducerModule } from 'src/producer/producer.module'
             autoLoadEntities: true,
             synchronize: true,
         }),
-        ProducerModule,
         CustomerModule,
+        ProducerModule,
     ],
 })
 export class AppModule {}

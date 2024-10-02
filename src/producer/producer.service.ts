@@ -7,11 +7,18 @@ import { Repository } from 'typeorm'
 @Injectable()
 export class ProducerService {
     private kafkaProducer: Producer
+    private kafka = new Kafka({
+        clientId: 'customer',
+        brokers: ['localhost:9094'],
+        retry: {
+            retries: 5,
+            factor: 3,
+        },
+    })
 
     constructor(
         @InjectRepository(Customer)
-        private customerRepository: Repository<Customer>,
-        private readonly kafka: Kafka,
+        private readonly customerRepository: Repository<Customer>,
     ) {
         this.kafkaProducer = this.kafka.producer()
     }
@@ -20,7 +27,9 @@ export class ProducerService {
         try {
             await this.kafkaProducer.connect()
 
-            const customers = await this.customerRepository.find()
+            const customers = await this.customerRepository.find({
+                relations: ['addresses'],
+            })
 
             for (const customer of customers) {
                 const message = {
@@ -32,7 +41,7 @@ export class ProducerService {
 
                 await this.kafkaProducer.send({
                     topic: 'customer-topic',
-                    acks: -1,
+                    acks: 0,
                     messages: [message],
                 })
             }
