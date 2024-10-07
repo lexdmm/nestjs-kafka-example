@@ -7,7 +7,6 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices'
 async function bootstrap() {
     const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
 
-
     // Configuração do Kafka como Broker
     const kafkaOptions: MicroserviceOptions = {
         transport: Transport.KAFKA,
@@ -26,11 +25,11 @@ async function bootstrap() {
                 heartbeatInterval: 2500,
             },
         },
-    };
+    }
 
     // Inicializa o microserviço Kafka
-    app.connectMicroservice(kafkaOptions);
-    
+    app.connectMicroservice(kafkaOptions)
+
     // Iniciar a aplicação e o microserviço Kafka
     await app.startAllMicroservices().then(() => {
         console.log('Kafka Consumer Service is listening...')
